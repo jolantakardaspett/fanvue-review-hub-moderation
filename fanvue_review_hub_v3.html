@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fanvue Review Hub v3</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#111113;--bg2:#18181b;--bg3:#1f1f23;--bg4:#28282d;
+  --border:#2a2a2f;--border2:#35353c;
+  --t1:#e8e8ea;--t2:#8b8b95;--t3:#52525a;
+  --fv:#c8f060;--fvd:#2a3a10;--fvb:#3a5018;
+  --red-bg:#1f1418;--red-border:#3d2028;--red-text:#d07070;
+  --amber-bg:#1e1a12;--amber-border:#3a2e18;--amber-text:#c09050;
+  --green-bg:#131a14;--green-border:#1e3020;--green-text:#6a9e60;
+  --purple-bg:#16141e;--purple-border:#2a2640;--purple-text:#8878c0;
+  --blue-bg:#12151e;--blue-border:#1e2a3a;--blue-text:#5888b8;
+  --teal-bg:#0c1e1a;--teal-border:#1a3830;--teal-text:#4a9e88;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);min-height:100vh;padding:20px}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;white-space:nowrap;line-height:1.4}
+.p-red{background:var(--red-bg);color:var(--red-text);border:0.5px solid var(--red-border)}
+.p-amber{background:var(--amber-bg);color:var(--amber-text);border:0.5px solid var(--amber-border)}
+.p-green{background:var(--green-bg);color:var(--green-text);border:0.5px solid var(--green-border)}
+.p-gray{background:var(--bg3);color:var(--t2);border:0.5px solid var(--border2)}
+.p-purple{background:var(--purple-bg);color:var(--purple-text);border:0.5px solid var(--purple-border)}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:0.5px solid var(--border);background:var(--bg2)}
+.btn{font-size:12px;padding:8px 16px;border-radius:8px;border:0.5px solid var(--border2);background:var(--bg3);color:var(--t1);cursor:pointer;font-weight:500;white-space:nowrap;line-height:1;transition:all .1s}
+.btn:hover{background:var(--bg4)}
+.btn-primary{background:var(--fvd);border-color:var(--fvb);color:var(--fv);font-size:13px;padding:10px 24px}
+.btn-primary:hover{background:#3a5018}
+.action-btn{display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 20px;border-radius:12px;border:0.5px solid;cursor:pointer;transition:all .15s;font-family:inherit;min-width:100px}
+.action-btn:hover{transform:translateY(-1px)}
+.action-btn .label{font-size:12px;font-weight:500;text-align:center;line-height:1.3}
+.action-btn .sublabel{font-size:10px;opacity:.7;text-align:center;line-height:1.3}
+.action-btn .key{font-size:10px;opacity:.45;font-family:monospace;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;margin-top:2px}
+.action-approve{background:var(--green-bg);border-color:var(--green-border);color:var(--green-text)}
+.action-warn{background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber-text)}
+.action-escalate{background:var(--purple-bg);border-color:var(--purple-border);color:var(--purple-text)}
+.action-remove{background:var(--red-bg);border-color:var(--red-border);color:var(--red-text)}
+.content-area{background:var(--bg3);border:0.5px solid var(--border2);border-radius:12px;padding:20px;min-height:140px;display:flex;align-items:center;justify-content:center}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;border:0.5px solid}
+.tag-nsfw{background:#1f1015;border-color:#4a2030;color:#c06080}
+.tag-sfw{background:#121815;border-color:#1e3020;color:#6a9e60}
+.tag-ai{background:var(--blue-bg);border-color:var(--blue-border);color:var(--blue-text)}
+.tag-real{background:var(--bg3);border-color:var(--border2);color:var(--t2)}
+.tag-violation{background:var(--red-bg);border-color:var(--red-border);color:var(--red-text)}
+.tag-clean{background:var(--green-bg);border-color:var(--green-border);color:var(--green-text)}
+.tag-no-rel{background:var(--bg3);border-color:var(--border2);color:var(--t3)}
+.timer-ring{width:36px;height:36px;flex-shrink:0}
+.queue-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:16px 20px;cursor:pointer;transition:border-color .15s}
+.queue-card:hover{border-color:var(--border2)}
+.sla-dot{width:7px;height:7px;border-radius:50%;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.progress-bar{height:3px;border-radius:2px;background:var(--bg4);overflow:hidden}
+.progress-fill{height:100%;border-radius:2px;background:var(--fv)}
+.note-input{width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;color:var(--t1);font-size:12px;padding:10px 12px;resize:none;font-family:inherit;outline:none;line-height:1.5}
+.note-input:focus{border-color:var(--fvb)}
+.note-input::placeholder{color:var(--t3)}
+.screen{display:none}
+.screen.active{display:block}
+.wrapper{border:0.5px solid var(--border);border-radius:12px;overflow:hidden;max-width:1100px;margin:0 auto}
+.flag-tab{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;cursor:pointer;border:0.5px solid var(--border2);background:var(--bg3);transition:all .12s;flex-shrink:0}
+.flag-tab:hover{background:var(--bg4)}
+.flag-tab.active{border-color:var(--fvb);background:var(--fvd)}
+.flag-tab.active .ft-type{color:var(--fv)}
+.flag-tab.active .ft-badge{background:var(--fvb);color:var(--fv)}
+.ft-type{font-size:11px;font-weight:500;color:var(--t2)}
+.ft-detail{font-size:10px;color:var(--t3);margin-top:1px}
+.ft-badge{font-size:10px;font-weight:500;padding:1px 6px;border-radius:20px;background:var(--border2);color:var(--t3)}
+.sig-label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.rep-row{display:flex;align-items:center;gap:7px}
+.rep-avatar{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;flex-shrink:0}
+.rep-avatar-teal{background:var(--teal-bg);border:0.5px solid var(--teal-border);color:var(--teal-text)}
+.rep-avatar-purple{background:var(--purple-bg);border:0.5px solid var(--purple-border);color:var(--purple-text)}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="width:26px;height:26px;background:var(--fvd);border:0.5px solid var(--fvb);border-radius:7px;display:flex;align-items:center;justify-content:center">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5" stroke="#c8f060" stroke-width="1.4"/><circle cx="8" cy="8" r="2" fill="#c8f060"/><circle cx="8" cy="2.5" r="1" fill="#c8f060"/><circle cx="8" cy="13.5" r="1" fill="#c8f060"/><circle cx="2.5" cy="8" r="1" fill="#c8f060"/><circle cx="13.5" cy="8" r="1" fill="#c8f060"/></svg>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:500;color:var(--t1)">Review Hub</div>
+        <div style="font-size:10px;color:var(--t3)">Fanvue Trust &amp; Safety</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div id="topbar-status" style="font-size:12px;color:var(--t2)">Select a queue to begin</div>
+      <div style="display:flex;align-items:center;gap:6px;background:var(--bg3);border:0.5px solid var(--border);border-radius:20px;padding:3px 10px">
+        <div style="width:22px;height:22px;border-radius:50%;background:var(--fvd);border:0.5px solid var(--fvb);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:500;color:var(--fv);letter-spacing:-0.5px">JKP</div>
+        <span style="font-size:11px;color:var(--t2)">Jolanta</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-queues" class="screen active" style="padding:24px">
+    <div style="margin-bottom:20px">
+      <div style="font-size:18px;font-weight:500;color:var(--t1);margin-bottom:4px">Good morning, Jolanta</div>
+      <div style="font-size:13px;color:var(--t2)">Select a queue to check in. Cases will be assigned to you in priority order.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
+      <div class="queue-card" onclick="selectQueue('intros')">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:13px;font-weight:500;color:var(--t1)">Reported intros</div><div class="sla-dot" style="background:#a05050"></div></div>
+        <div style="font-size:28px;font-weight:500;color:var(--t1);margin-bottom:4px">24</div>
+        <div style="font-size:11px;color:var(--t2);margin-bottom:10px">items &middot; 2 breaching SLA</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:38%"></div></div>
+        <div style="font-size:10px;color:var(--t3);margin-top:5px">38% cleared today</div>
+      </div>
+      <div class="queue-card" onclick="selectQueue('users')">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:13px;font-weight:500;color:var(--t1)">Reported users</div><div class="sla-dot" style="background:#a05050"></div></div>
+        <div style="font-size:28px;font-weight:500;color:var(--t1);margin-bottom:4px">18</div>
+        <div style="font-size:11px;color:var(--t2);margin-bottom:10px">items &middot; 1 breaching SLA</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:54%"></div></div>
+        <div style="font-size:10px;color:var(--t3);margin-top:5px">54% cleared today</div>
+      </div>
+      <div class="queue-card" onclick="selectQueue('messages')">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:13px;font-weight:500;color:var(--t1)">Reported messages</div><div class="sla-dot" style="background:#a07838"></div></div>
+        <div style="font-size:28px;font-weight:500;color:var(--t1);margin-bottom:4px">31</div>
+        <div style="font-size:11px;color:var(--t2);margin-bottom:10px">items &middot; 0 breaching SLA</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
+        <div style="font-size:10px;color:var(--t3);margin-top:5px">60% cleared today</div>
+      </div>
+      <div class="queue-card" onclick="selectQueue('posts')">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:13px;font-weight:500;color:var(--t1)">Reported posts</div><div class="sla-dot" style="background:#a05050"></div></div>
+        <div style="font-size:28px;font-weight:500;color:var(--t1);margin-bottom:4px">42</div>
+        <div style="font-size:11px;color:var(--t2);margin-bottom:10px">items &middot; 3 breaching SLA</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:29%"></div></div>
+        <div style="font-size:10px;color:var(--t3);margin-top:5px">29% cleared today</div>
+      </div>
+      <div class="queue-card" onclick="selectQueue('media')">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:13px;font-weight:500;color:var(--t1)">Flagged media</div><div class="sla-dot" style="background:#a05050"></div></div>
+        <div style="font-size:28px;font-weight:500;color:var(--t1);margin-bottom:4px">67</div>
+        <div style="font-size:11px;color:var(--t2);margin-bottom:10px">items &middot; 4 breaching SLA</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:44%"></div></div>
+        <div style="font-size:10px;color:var(--t3);margin-top:5px">44% cleared today</div>
+      </div>
+      <div class="queue-card" onclick="selectQueue('comments')">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:13px;font-weight:500;color:var(--t1)">Flagged comments</div><div class="sla-dot" style="background:#507848"></div></div>
+        <div style="font-size:28px;font-weight:500;color:var(--t1);margin-bottom:4px">12</div>
+        <div style="font-size:11px;color:var(--t2);margin-bottom:10px">items &middot; 0 breaching SLA</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:72%"></div></div>
+        <div style="font-size:10px;color:var(--t3);margin-top:5px">72% cleared today</div>
+      </div>
+    </div>
+    <div style="background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:16px 20px">
+      <div style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px">Your session today</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr)">
+        <div style="text-align:center;padding:0 12px;border-right:0.5px solid var(--border)"><div style="font-size:22px;font-weight:500;color:var(--t1)" id="sess-reviewed">0</div><div style="font-size:10px;color:var(--t3);margin-top:3px">Reviewed</div></div>
+        <div style="text-align:center;padding:0 12px;border-right:0.5px solid var(--border)"><div style="font-size:22px;font-weight:500;color:var(--green-text)" id="sess-approved">0</div><div style="font-size:10px;color:var(--t3);margin-top:3px">Approved</div></div>
+        <div style="text-align:center;padding:0 12px;border-right:0.5px solid var(--border)"><div style="font-size:22px;font-weight:500;color:var(--amber-text)" id="sess-warned">0</div><div style="font-size:10px;color:var(--t3);margin-top:3px">Remove + warn</div></div>
+        <div style="text-align:center;padding:0 12px;border-right:0.5px solid var(--border)"><div style="font-size:22px;font-weight:500;color:var(--red-text)" id="sess-removed">0</div><div style="font-size:10px;color:var(--t3);margin-top:3px">Removed</div></div>
+        <div style="text-align:center;padding:0 12px"><div style="font-size:22px;font-weight:500;color:var(--t2)" id="sess-avg">--</div><div style="font-size:10px;color:var(--t3);margin-top:3px">Avg. handle time</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-review" class="screen" style="padding:0">
+    <div style="display:grid;grid-template-columns:252px 1fr;min-height:600px">
+      <div style="border-right:0.5px solid var(--border);background:var(--bg2);padding:16px;display:flex;flex-direction:column;gap:12px;overflow-y:auto">
+        <div><div class="sig-label">Queue</div><div style="font-size:13px;font-weight:500;color:var(--t1)" id="sidebar-queue-name">--</div><div style="font-size:11px;color:var(--t2);margin-top:2px" id="sidebar-queue-count">--</div></div>
+        <div style="height:0.5px;background:var(--border)"></div>
+        <div>
+          <div class="sig-label">Handle time</div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <svg class="timer-ring" viewBox="0 0 36 36"><circle cx="18" cy="18" r="14" fill="none" stroke="#2a2a2f" stroke-width="3"/><circle id="timer-arc" cx="18" cy="18" r="14" fill="none" stroke="#c8f060" stroke-width="3" stroke-linecap="round" stroke-dasharray="88 88" stroke-dashoffset="0" transform="rotate(-90 18 18)"/></svg>
+            <div><div style="font-size:20px;font-weight:500;color:var(--t1);line-height:1" id="timer-display">0:00</div><div style="font-size:10px;color:var(--t3);margin-top:2px">this case</div></div>
+          </div>
+        </div>
+        <div style="height:0.5px;background:var(--border)"></div>
+        <div>
+          <div class="sig-label">Content &amp; account</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div class="tag tag-nsfw" id="sig-category" style="align-self:flex-start">NSFW</div>
+            <div class="tag tag-ai" id="sig-type" style="align-self:flex-start">AI-generated</div>
+            <div class="tag tag-violation" id="sig-history" style="align-self:flex-start">3 prior violations</div>
+          </div>
+        </div>
+        <div style="height:0.5px;background:var(--border)"></div>
+        <div><div class="sig-label">Onboarding</div><div id="sig-onboarding-wrap"></div></div>
+        <div style="height:0.5px;background:var(--border)"></div>
+        <div><div class="sig-label">Creator Success</div><div id="sig-cs-wrap"></div></div>
+        <div style="height:0.5px;background:var(--border)"></div>
+        <div><div class="sig-label">Detection</div><div style="font-size:12px;color:var(--t2)" id="sig-detection">--</div><div style="font-size:11px;color:var(--t3);margin-top:2px" id="sig-reports"></div></div>
+        <div style="height:0.5px;background:var(--border)"></div>
+        <div><div class="sig-label">Priority</div><div id="sig-priority" class="pill p-red">--</div></div>
+        <div style="margin-top:auto"><button class="btn" style="width:100%;font-size:11px" onclick="exitQueue()">&#8592; Exit queue</button></div>
+      </div>
+      <div style="display:flex;flex-direction:column;min-width:0">
+        <div style="padding:12px 20px;border-bottom:0.5px solid var(--border);background:var(--bg2)">
+          <div style="font-size:11px;color:var(--t3);margin-bottom:3px" id="review-handle">--</div>
+          <div style="font-size:15px;font-weight:500;color:var(--t1)" id="review-reason">--</div>
+        </div>
+        <div id="flag-tabs-bar" style="display:none;padding:10px 20px;border-bottom:0.5px solid var(--border);background:var(--bg2)">
+          <div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">All flags on <span id="flag-tabs-handle">this account</span></div>
+          <div id="flag-tabs-list" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+        </div>
+        <div style="flex:1;padding:16px 20px;display:flex;flex-direction:column;gap:14px;overflow-y:auto">
+          <div>
+            <div style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px" id="current-case-label">Current case</div>
+            <div class="content-area">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--t3)">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="4" y="8" width="40" height="30" rx="4" stroke="#35353c" stroke-width="2"/><circle cx="24" cy="23" r="9" stroke="#35353c" stroke-width="2"/><path d="M20 23l3 1.8 5-2.8" stroke="#35353c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <div style="font-size:13px" id="content-label">Content preview</div>
+                <div style="font-size:11px;color:var(--t3);text-align:center">In production this loads the flagged media, message, or post directly</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Admin notes</div>
+            <textarea class="note-input" rows="2" placeholder="Add context for the audit log..." id="review-note"></textarea>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:center;padding-top:4px">
+            <button class="action-btn action-approve" onclick="doAction('approve')"><span class="label">Approve</span><span class="key">A</span></button>
+            <button class="action-btn action-warn" onclick="doAction('warn')"><span class="label">Remove</span><span class="sublabel">and warn</span><span class="key">W</span></button>
+            <button class="action-btn action-remove" onclick="doAction('remove')"><span class="label">Remove</span><span class="key">R</span></button>
+            <button class="action-btn action-escalate" onclick="doAction('escalate')"><span class="label">Escalate</span><span class="key">E</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-actioned" class="screen" style="padding:0">
+    <div style="display:grid;grid-template-columns:252px 1fr;min-height:600px">
+      <div style="border-right:0.5px solid var(--border);background:var(--bg2);padding:16px;display:flex;flex-direction:column;gap:12px">
+        <div><div class="sig-label">Queue</div><div style="font-size:13px;font-weight:500;color:var(--t1)" id="act-queue-name">--</div><div style="font-size:11px;color:var(--t2);margin-top:2px" id="act-queue-count">--</div></div>
+        <div style="height:0.5px;background:var(--border)"></div>
+        <div>
+          <div class="sig-label">Session so far</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--t2)">Reviewed</span><span style="font-weight:500;color:var(--t1)" id="act-reviewed">0</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--t2)">Approved</span><span style="font-weight:500;color:var(--green-text)" id="act-approved">0</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--t2)">Remove + warn</span><span style="font-weight:500;color:var(--amber-text)" id="act-warned">0</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--t2)">Removed</span><span style="font-weight:500;color:var(--red-text)" id="act-removed">0</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--t2)">Escalated</span><span style="font-weight:500;color:var(--purple-text)" id="act-escalated">0</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--t2)">Avg. handle</span><span style="font-weight:500;color:var(--t1)" id="act-avg">--</span></div>
+          </div>
+        </div>
+        <div style="margin-top:auto"><button class="btn" style="width:100%;font-size:11px" onclick="exitQueue()">&#8592; Exit queue</button></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px">
+        <div id="action-result-icon" style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M7 14l5 5 9-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div style="text-align:center">
+          <div style="font-size:18px;font-weight:500;color:var(--t1)" id="action-result-label">Done</div>
+          <div style="font-size:13px;color:var(--t2);margin-top:4px" id="action-result-sub">Loading next case...</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div style="font-size:12px;color:var(--t3)">Next case loading in</div>
+          <div style="font-size:32px;font-weight:500;color:var(--fv)" id="next-countdown">3</div>
+          <button class="btn" id="load-now-btn" style="font-size:12px">Load now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-empty" class="screen" style="padding:60px 24px;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center">
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="20" stroke="#2a2a2f" stroke-width="2"/><path d="M16 24l6 6 10-10" stroke="#507848" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div style="font-size:18px;font-weight:500;color:var(--t1)">Queue cleared</div>
+    <div style="font-size:13px;color:var(--t2)">All cases in this queue have been reviewed.</div>
+    <button class="btn btn-primary" onclick="exitQueue()" style="margin-top:8px">Back to queues</button>
+  </div>
+</div>
+
+<div id="confirm-modal" style="display:none;margin-top:8px;border:0.5px solid var(--border);border-radius:12px;overflow:hidden;background:var(--bg2);max-width:1100px;margin-left:auto;margin-right:auto">
+  <div style="padding:20px 24px;display:flex;flex-direction:column;gap:12px">
+    <div style="font-size:14px;font-weight:500;color:var(--t1)" id="confirm-title">Confirm action</div>
+    <div style="font-size:12px;color:var(--t2);line-height:1.8" id="confirm-desc">This action will be logged.</div>
+    <div id="confirm-note-preview" style="display:none;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:8px 10px;font-size:11px;color:var(--t2)"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn" onclick="cancelConfirm()">Cancel</button>
+      <button class="btn" id="confirm-do-btn" onclick="executeConfirmed()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUEUES={
+  intros:{name:'Reported intros',items:[
+    {id:'i1',handle:'@creator_xxxx',type:'intro video',reason:'Flagged for policy-violating content',category:'nsfw',accountType:'real',violations:3,detection:'HIVE - Score 0.91',reports:3,priority:'critical',sla:'18 min',salesOnboarded:false,salesRep:null,csRep:null},
+    {id:'i2',handle:'@creator_yyyy',type:'intro video',reason:'Borderline content - human review required',category:'nsfw',accountType:'ai',violations:1,detection:'HIVE - Score 0.64',reports:0,priority:'high',sla:null,salesOnboarded:true,salesRep:'Tom B.',csRep:'Sarah M.'},
+    {id:'i3',handle:'@creator_zzzz',type:'intro video',reason:'Misleading content reported by user',category:'sfw',accountType:'real',violations:0,detection:'Manual report',reports:1,priority:'standard',sla:null,salesOnboarded:false,salesRep:null,csRep:null}
+  ]},
+  users:{name:'Reported users',items:[
+    {id:'u1',handle:'@user_aaaa',type:'account',reason:'Harassment and targeted abuse of multiple users',category:'nsfw',accountType:'real',violations:5,detection:'Manual report',reports:7,priority:'critical',sla:'32 min',salesOnboarded:false,salesRep:null,csRep:null},
+    {id:'u2',handle:'@user_bbbb',type:'account',reason:'Impersonating another creator',category:'nsfw',accountType:'real',violations:0,detection:'Manual report',reports:2,priority:'high',sla:null,salesOnboarded:true,salesRep:'Alex R.',csRep:'James T.'}
+  ]},
+  messages:{name:'Reported messages',items:[
+    {id:'m1',handle:'@user_bbbb',type:'direct message',reason:'Off-platform solicitation',category:'nsfw',accountType:'real',violations:2,detection:'Manual report',reports:2,priority:'critical',sla:'45 min',salesOnboarded:false,salesRep:null,csRep:null},
+    {id:'m2',handle:'@user_dddd',type:'direct message',reason:'Threatening and intimidating language',category:'nsfw',accountType:'real',violations:1,detection:'Manual report',reports:1,priority:'high',sla:null,salesOnboarded:true,salesRep:'Tom B.',csRep:'Sarah M.'}
+  ]},
+  posts:{name:'Reported posts',items:[
+    {id:'p1',handle:'@creator_gggg',type:'paid post',reason:'Policy-violating content in free-tier preview',category:'nsfw',accountType:'ai',violations:4,detection:'HIVE - Score 0.88',reports:4,priority:'critical',sla:'12 min',salesOnboarded:true,salesRep:'Alex R.',csRep:'James T.'},
+    {id:'p2',handle:'@creator_hhhh',type:'public post',reason:'Discriminatory language targeting a protected group',category:'sfw',accountType:'real',violations:1,detection:'Manual report',reports:2,priority:'high',sla:null,salesOnboarded:false,salesRep:null,csRep:null},
+    {id:'p3',handle:'@creator_iiii',type:'public post',reason:'Potentially misleading health claims',category:'sfw',accountType:'real',violations:0,detection:'Manual report',reports:1,priority:'standard',sla:null,salesOnboarded:false,salesRep:null,csRep:'Priya K.'}
+  ]},
+  media:{name:'Flagged media',items:[
+    {id:'md1',handle:'@creator_aaaa',type:'profile picture',reason:'Prohibited content - zero-tolerance category',category:'nsfw',accountType:'real',violations:1,detection:'HIVE - Score 0.96',reports:0,priority:'critical',sla:'6 min',salesOnboarded:true,salesRep:'Tom B.',csRep:'Sarah M.'},
+    {id:'md2',handle:'@creator_aaaa',type:'banner image',reason:'Synthetic media detected on same account',category:'nsfw',accountType:'real',violations:1,detection:'HIVE - Score 0.88',reports:0,priority:'critical',sla:'22 min',salesOnboarded:true,salesRep:'Tom B.',csRep:'Sarah M.'},
+    {id:'md3',handle:'@creator_aaaa',type:'intro video',reason:'Further policy-violating content on same account',category:'nsfw',accountType:'real',violations:1,detection:'Manual report',reports:2,priority:'high',sla:null,salesOnboarded:true,salesRep:'Tom B.',csRep:'Sarah M.'},
+    {id:'md4',handle:'@creator_kkkk',type:'profile picture',reason:'Celebrity likeness used without consent',category:'nsfw',accountType:'real',violations:1,detection:'Manual report',reports:2,priority:'standard',sla:null,salesOnboarded:false,salesRep:null,csRep:null},
+    {id:'md5',handle:'@creator_mmmm',type:'post image',reason:'AI-generated content missing disclosure label',category:'nsfw',accountType:'ai',violations:0,detection:'HIVE - Score 0.93',reports:0,priority:'standard',sla:null,salesOnboarded:false,salesRep:null,csRep:'James T.'}
+  ]},
+  comments:{name:'Flagged comments',items:[
+    {id:'c1',handle:'@fan_mmmm',type:'comment',reason:'Hate speech targeting a protected characteristic',category:'sfw',accountType:'real',violations:3,detection:'Manual report',reports:3,priority:'critical',sla:'55 min',salesOnboarded:false,salesRep:null,csRep:null},
+    {id:'c2',handle:'@fan_oooo',type:'comment',reason:'Sharing personal identifying information of a creator',category:'sfw',accountType:'real',violations:1,detection:'Manual report',reports:1,priority:'high',sla:null,salesOnboarded:false,salesRep:null,csRep:null}
+  ]}
+};
+
+const ACTION_STYLES={approve:{bg:'var(--green-bg)',border:'var(--green-border)',color:'var(--green-text)',label:'Approved'},warn:{bg:'var(--amber-bg)',border:'var(--amber-border)',color:'var(--amber-text)',label:'Removed and warned'},remove:{bg:'var(--red-bg)',border:'var(--red-border)',color:'var(--red-text)',label:'Removed'},escalate:{bg:'var(--purple-bg)',border:'var(--purple-border)',color:'var(--purple-text)',label:'Escalated'}};
+const PRIORITY_STYLES={critical:{cls:'p-red',label:'Critical'},high:{cls:'p-amber',label:'High'},standard:{cls:'p-gray',label:'Standard'}};
+const CONFIRM_ACTIONS=['remove','escalate'];
+
+let currentQueue=null,currentItemIdx=0,viewingFlagId=null,timerSecs=0,timerInterval=null;
+let countdownSecs=3,countdownInterval=null,pendingAction=null,nextCb=null;
+let session={reviewed:0,removed:0,warned:0,approved:0,escalated:0,totalSecs:0};
+let handleStartTime=null;
+const actioned={};
+
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active');}
+function getGroupFlags(qk,item){return QUEUES[qk].items.filter(i=>i.handle===item.handle&&!actioned[i.id]);}
+function selectQueue(qk){currentQueue=qk;currentItemIdx=0;document.getElementById('topbar-status').textContent=`Reviewing: ${QUEUES[qk].name}`;advanceToNextUnactioned();}
+
+function advanceToNextUnactioned(){
+  const items=QUEUES[currentQueue].items;
+  while(currentItemIdx<items.length&&actioned[items[currentItemIdx].id]){currentItemIdx++;}
+  if(currentItemIdx>=items.length){showScreen('empty');return;}
+  viewingFlagId=items[currentItemIdx].id;
+  renderReviewScreen();
+}
+
+function initials(name){return name.split(' ').map(w=>w[0]).join('').toUpperCase();}
+
+function renderSignals(item){
+  const catTag=document.getElementById('sig-category');
+  catTag.className=item.category==='nsfw'?'tag tag-nsfw':'tag tag-sfw';
+  catTag.textContent=item.category==='nsfw'?'NSFW':'SFW';
+  const typeTag=document.getElementById('sig-type');
+  typeTag.className=item.accountType==='ai'?'tag tag-ai':'tag tag-real';
+  typeTag.textContent=item.accountType==='ai'?'AI-generated':'Real account';
+  const histTag=document.getElementById('sig-history');
+  if(item.violations===0){histTag.className='tag tag-clean';histTag.style.cssText='align-self:flex-start';histTag.textContent='No prior violations';}
+  else if(item.violations<=2){histTag.style.cssText='background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber-text);align-self:flex-start;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;border:0.5px solid';histTag.textContent=`${item.violations} prior violation${item.violations>1?'s':''}`;}
+  else{histTag.className='tag tag-violation';histTag.style.cssText='align-self:flex-start';histTag.textContent=`${item.violations} prior violations`;}
+
+  const onbWrap=document.getElementById('sig-onboarding-wrap');
+  if(item.salesOnboarded&&item.salesRep){
+    onbWrap.innerHTML=`<div style="display:flex;flex-direction:column;gap:5px"><div style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;border:0.5px solid;background:var(--teal-bg);border-color:var(--teal-border);color:var(--teal-text);align-self:flex-start"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>Sales onboarded</div><div class="rep-row"><div class="rep-avatar rep-avatar-teal">${initials(item.salesRep)}</div><div><div style="font-size:12px;font-weight:500;color:var(--t1)">${item.salesRep}</div><div style="font-size:10px;color:var(--t3);margin-top:1px">Sales representative</div></div></div></div>`;
+  } else {
+    onbWrap.innerHTML=`<div class="tag tag-no-rel" style="align-self:flex-start;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;border:0.5px solid">Not sales onboarded</div>`;
+  }
+
+  const csWrap=document.getElementById('sig-cs-wrap');
+  if(item.csRep){
+    csWrap.innerHTML=`<div class="rep-row"><div class="rep-avatar rep-avatar-purple">${initials(item.csRep)}</div><div><div style="font-size:12px;font-weight:500;color:var(--t1)">${item.csRep}</div><div style="font-size:10px;color:var(--t3);margin-top:1px">CS representative</div></div></div>`;
+  } else {
+    csWrap.innerHTML=`<div class="tag tag-no-rel" style="align-self:flex-start;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;border:0.5px solid">No CS rep assigned</div>`;
+  }
+}
+
+function renderReviewScreen(){
+  const q=QUEUES[currentQueue];
+  const primaryItem=q.items[currentItemIdx];
+  const viewingItem=q.items.find(i=>i.id===viewingFlagId)||primaryItem;
+  const groupFlags=getGroupFlags(currentQueue,primaryItem);
+  const remaining=q.items.filter(i=>!actioned[i.id]).length;
+
+  document.getElementById('sidebar-queue-name').textContent=q.name;
+  document.getElementById('act-queue-name').textContent=q.name;
+  document.getElementById('sidebar-queue-count').textContent=`${remaining} remaining`;
+  document.getElementById('act-queue-count').textContent=`${remaining} remaining`;
+  document.getElementById('review-handle').textContent=`${viewingItem.handle} - ${viewingItem.type}`;
+  document.getElementById('review-reason').textContent=viewingItem.reason;
+  document.getElementById('content-label').textContent=`${viewingItem.type} preview`;
+  document.getElementById('current-case-label').textContent=viewingItem.id===primaryItem.id?'Current case':`Viewing: ${viewingItem.type}`;
+  document.getElementById('review-note').value='';
+  renderSignals(viewingItem);
+  document.getElementById('sig-detection').textContent=viewingItem.detection;
+  document.getElementById('sig-reports').textContent=viewingItem.reports>0?`${viewingItem.reports} user report${viewingItem.reports>1?'s':''}`:'';
+
+  const prioEl=document.getElementById('sig-priority');
+  const ps=PRIORITY_STYLES[viewingItem.priority];
+  prioEl.className=`pill ${ps.cls}`;
+  prioEl.textContent=viewingItem.sla?`${ps.label} - SLA in ${viewingItem.sla}`:ps.label;
+
+  const tabsBar=document.getElementById('flag-tabs-bar');
+  if(groupFlags.length>1){
+    tabsBar.style.display='block';
+    document.getElementById('flag-tabs-handle').textContent=primaryItem.handle;
+    document.getElementById('flag-tabs-list').innerHTML=groupFlags.map(f=>{
+      const ps2=PRIORITY_STYLES[f.priority];const isV=f.id===viewingFlagId;
+      return `<div class="flag-tab${isV?' active':''}" onclick="switchFlag('${f.id}')"><div><div class="ft-type">${f.type}</div><div class="ft-detail">${f.detection.split(' - ')[0]}${f.sla?' &middot; SLA '+f.sla:''}</div></div><div class="ft-badge">${ps2.label}</div></div>`;
+    }).join('');
+  } else {tabsBar.style.display='none';}
+
+  if(viewingFlagId===primaryItem.id)startHandleTimer();
+  showScreen('review');
+}
+
+function switchFlag(flagId){viewingFlagId=flagId;renderReviewScreen();}
+
+function startHandleTimer(){
+  clearInterval(timerInterval);timerSecs=0;handleStartTime=Date.now();
+  updateTimerDisplay();
+  timerInterval=setInterval(()=>{timerSecs++;updateTimerDisplay();},1000);
+}
+function updateTimerDisplay(){
+  const m=Math.floor(timerSecs/60),s=timerSecs%60;
+  document.getElementById('timer-display').textContent=`${m}:${s.toString().padStart(2,'0')}`;
+  const pct=Math.min(timerSecs/300,1);
+  const arc=document.getElementById('timer-arc');
+  if(arc){arc.setAttribute('stroke-dashoffset',(88*(1-pct)).toString());arc.setAttribute('stroke',timerSecs>180?'#d07070':timerSecs>90?'#c09050':'#c8f060');}
+}
+
+function doAction(action){if(CONFIRM_ACTIONS.includes(action))showConfirmDialog(action);else executeAction(action);}
+
+function showConfirmDialog(action){
+  pendingAction=action;
+  const item=QUEUES[currentQueue].items.find(i=>i.id===viewingFlagId);
+  const descs={remove:'Content will be removed. Creator will not receive a warning. This action is logged.',escalate:'This case will be passed to a senior moderator. Your admin note will be included.'};
+  const btnStyles={remove:'btn-remove',escalate:'btn-escalate'};
+  const labels={remove:'Remove',escalate:'Escalate to senior'};
+  document.getElementById('confirm-title').textContent=`${labels[action]}: ${item.type}`;
+  const parts=[];
+  if(item.salesOnboarded&&item.salesRep)parts.push(`sales rep ${item.salesRep}`);
+  if(item.csRep)parts.push(`CS rep ${item.csRep}`);
+  const warning=parts.length>0?`<div style="background:var(--amber-bg);border:0.5px solid var(--amber-border);border-radius:8px;padding:8px 10px;font-size:11px;color:var(--amber-text);margin-top:6px">This creator has a ${parts.join(' and ')}. Consider looping them in before actioning.</div>`:'';
+  document.getElementById('confirm-desc').innerHTML=descs[action]+warning;
+  const note=document.getElementById('review-note').value.trim();
+  const np=document.getElementById('confirm-note-preview');
+  if(note){np.style.display='block';np.textContent=`Admin note: ${note}`;}else{np.style.display='none';}
+  const btn=document.getElementById('confirm-do-btn');
+  btn.className=`btn ${btnStyles[action]}`;btn.textContent=labels[action];
+  document.getElementById('confirm-modal').style.display='block';
+}
+
+function cancelConfirm(){document.getElementById('confirm-modal').style.display='none';pendingAction=null;}
+function executeConfirmed(){document.getElementById('confirm-modal').style.display='none';if(pendingAction)executeAction(pendingAction);pendingAction=null;}
+
+function executeAction(action){
+  clearInterval(timerInterval);
+  const elapsed=Math.round((Date.now()-handleStartTime)/1000);
+  actioned[viewingFlagId]=action;
+  session.reviewed++;session.totalSecs+=elapsed;
+  if(action==='approve')session.approved++;
+  else if(action==='warn')session.warned++;
+  else if(action==='remove')session.removed++;
+  else if(action==='escalate')session.escalated++;
+
+  const viewingItem=QUEUES[currentQueue].items.find(i=>i.id===viewingFlagId);
+  const primaryItem=QUEUES[currentQueue].items[currentItemIdx];
+  const as=ACTION_STYLES[action];
+  const icon=document.getElementById('action-result-icon');
+  icon.style.background=as.bg;icon.style.border=`0.5px solid ${as.border}`;icon.style.color=as.color;
+  document.getElementById('action-result-label').textContent=as.label;
+
+  const remainingGroup=getGroupFlags(currentQueue,primaryItem);
+  if(remainingGroup.length>0){
+    viewingFlagId=remainingGroup[0].id;
+    document.getElementById('action-result-sub').textContent=`${viewingItem.type} actioned - ${remainingGroup.length} more flag${remainingGroup.length>1?'s':''} on ${primaryItem.handle}`;
+    startCountdown(()=>renderReviewScreen());
+  } else {
+    currentItemIdx++;
+    document.getElementById('action-result-sub').textContent=`${viewingItem.handle} - ${viewingItem.type} - ${elapsed}s`;
+    startCountdown(()=>advanceToNextUnactioned());
+  }
+
+  document.getElementById('act-reviewed').textContent=session.reviewed;
+  document.getElementById('act-approved').textContent=session.approved;
+  document.getElementById('act-warned').textContent=session.warned;
+  document.getElementById('act-removed').textContent=session.removed;
+  document.getElementById('act-escalated').textContent=session.escalated;
+  document.getElementById('act-avg').textContent=session.reviewed>0?`${Math.round(session.totalSecs/session.reviewed)}s`:'--';
+  showScreen('actioned');updateSessionDisplay();
+}
+
+function startCountdown(cb){
+  clearInterval(countdownInterval);nextCb=cb;countdownSecs=3;
+  document.getElementById('next-countdown').textContent=countdownSecs;
+  document.getElementById('load-now-btn').onclick=()=>{clearInterval(countdownInterval);cb();};
+  countdownInterval=setInterval(()=>{countdownSecs--;document.getElementById('next-countdown').textContent=countdownSecs;if(countdownSecs<=0){clearInterval(countdownInterval);cb();}},1000);
+}
+
+function exitQueue(){
+  clearInterval(timerInterval);clearInterval(countdownInterval);
+  document.getElementById('confirm-modal').style.display='none';
+  pendingAction=null;currentQueue=null;nextCb=null;
+  document.getElementById('topbar-status').textContent='Select a queue to begin';
+  updateSessionDisplay();showScreen('queues');
+}
+
+function updateSessionDisplay(){
+  document.getElementById('sess-reviewed').textContent=session.reviewed;
+  document.getElementById('sess-approved').textContent=session.approved;
+  document.getElementById('sess-warned').textContent=session.warned;
+  document.getElementById('sess-removed').textContent=session.removed;
+  document.getElementById('sess-avg').textContent=session.reviewed>0?`${Math.round(session.totalSecs/session.reviewed)}s`:'--';
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT')return;
+  if(document.getElementById('screen-review').classList.contains('active')){
+    if(e.key==='a'||e.key==='A')doAction('approve');
+    else if(e.key==='w'||e.key==='W')doAction('warn');
+    else if(e.key==='r'||e.key==='R')doAction('remove');
+    else if(e.key==='e'||e.key==='E')doAction('escalate');
+  }
+});
+</script>
+</body>
+</html>
