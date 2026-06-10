@@ -369,7 +369,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
             <button class="abt a-app" onclick="doPA('approve')"><span class="l">Approve payout</span><span class="k">A</span></button>
             <button class="abt a-rem" onclick="doPA('reject')"><span class="l">Reject</span><span class="k">R</span></button>
-            <button class="abt a-hid" onclick="doPA('hide')"><span class="l">Hide profile</span><span class="s">AI content</span><span class="k">H</span></button>
             <button class="abt a-esc" onclick="doPA('escalate')"><span class="l">Escalate</span><span class="k">E</span></button>
           </div>
         </div>
@@ -593,7 +592,7 @@ function renderPAList(){
     var totalFlagged=fm+pfm;
     var statusBadge='';
     if(done){
-      var lbl={approve:'Approved',reject:'Rejected',hide:'Hidden',escalate:'Escalated'}[done]||'Actioned';
+      var lbl={approve:'Approved',reject:'Rejected',escalate:'Escalated'}[done]||'Actioned';
       var isApp=done==='approve';
       statusBadge='<span style="font-size:10px;font-weight:500;padding:2px 6px;border-radius:20px;flex-shrink:0;background:'+(isApp?'var(--gb)':'var(--rb)')+';color:'+(isApp?'var(--gt)':'var(--rt)')+';border:1px solid '+(isApp?'var(--gr)':'var(--rr)')+'">'+lbl+'</span>';
     } else {
@@ -730,7 +729,7 @@ function togglePANotes(){paNO=!paNO;swTab('ov');}
 
 function doPA(action){
   var c=PA.find(function(x){return x.id===paId;});if(!c)return;
-  var labels={approve:'Approve payout',reject:'Reject',hide:'Hide profile',escalate:'Escalate'};
+  var labels={approve:'Approve payout',reject:'Reject',escalate:'Escalate'};
   var descs={approve:'Payout of '+c.earn+' will be released. Creator notified. Review date recorded.',reject:'Payout blocked. Creator receives an automated email with the violations found and steps to become compliant.',hide:'AI-generated content detected. Profile hidden platform-wide. Auto-lifted once creator acknowledges the flag. Senior moderator notified.',escalate:'Case passed to a senior moderator with full context and review record. Payout remains blocked.'};
   G('m-ti').textContent=labels[action]+': '+c.h;
   G('m-de').textContent=descs[action]||'';
@@ -743,7 +742,6 @@ function doPA(action){
   var btnCls='btn ';
   if(action==='approve') btnCls+='btn-green';
   else if(action==='reject') btnCls+='btn-red';
-  else if(action==='hide') btnCls+='btn-orange';
   else btnCls+='btn-purple';
   G('m-ok').className=btnCls;G('m-ok').textContent=labels[action];
   pendAct='pa:'+action;G('modal').classList.add('on');
@@ -778,7 +776,7 @@ document.addEventListener('keydown',function(e){
   }
   if(G('s-pa').classList.contains('on')&&paId){
     var k=e.key.toLowerCase();
-    if(k==='a')doPA('approve');else if(k==='r')doPA('reject');else if(k==='h')doPA('hide');else if(k==='e')doPA('escalate');
+    if(k==='a')doPA('approve');else if(k==='r')doPA('reject');else if(k==='e')doPA('escalate');
   }
 });
 </script>
